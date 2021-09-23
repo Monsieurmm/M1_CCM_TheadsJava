@@ -29,7 +29,7 @@ public class DemoApplication {
 				new Thread(new TestThread(socket,agenda)).start();
 			}
 
-		}catch (IOException e){
+		} catch (IOException e){
 			e.printStackTrace();
 		}
 	}
