@@ -1,0 +1,31 @@
+@startuml
+box "User" #Lightblue
+    actor "Client"
+endbox
+box "Locker" #Lightgreen
+    actor "Locker"
+endbox
+box "Cloud platform"
+    participant "LockerApi"
+    database "LockerDB"
+    autonumber "<b>[000]"
+    "Client" -> "LockerApi": **[MQTT]** Send add product request
+    activate "LockerApi"
+    "LockerApi" -> "LockerApi": **Process** message
+    "LockerApi" -> "Locker": **[MQTT]** Send door unlocking message
+    activate "Locker"
+    alt #Transparent door already unlocked
+        "Locker" -> "LockerApi": **[MQTT]** <font color=green>Send message OK</font>
+    else door locked
+    "Locker" -> "Locker": **Unlock** door
+    "Locker" --> "LockerApi": **[MQTT]** <font color=green>Send message OK</font>
+    opt  #Transparent door is closing
+        "Locker" -> "LockerApi": **[MQTT]** Notify the Api that the door is closed
+    deactivate "Locker"
+    end opt
+    end alt
+    "LockerApi" ->o "LockerDB": **INSERT** data
+    "LockerApi" --> "Client": **[MQTT]** Send notification
+    deactivate "LockerApi"
+endbox
+@enduml
